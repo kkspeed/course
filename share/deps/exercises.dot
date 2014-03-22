@@ -1,10 +1,13 @@
 digraph G {
     {
-    list [label="List"];
-    functor [label="Functor"];
-    apply [label="Apply"];
-    applicative [label="Applicative"];
-    bind [label="Bind"];
+        list [label="List"];
+        functor [label="Functor"];
+        apply [label="Apply"];
+        applicative [label="Applicative"];
+        bind [label="Bind"];
+        comonad [label="Comonad"];
+        extend [label="Extend"];
+        state [label="State"];
     }
 
     functor -> list;
@@ -15,4 +18,12 @@ digraph G {
     bind -> list;
     bind -> apply;
     bind -> functor;
+    comonad -> extend;
+    extend -> list;
+    extend -> functor;
+    state -> list;
+    state -> functor;
+    state -> apply;
+    state -> applicative;
+    state -> bind;
 }
