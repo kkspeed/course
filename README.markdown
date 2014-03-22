@@ -1,5 +1,15 @@
 # Functional Programming Course
 
+## Exercise dependencies
+
+
+
+### Working in Progress
+
+### Finished
+
+## Original README
+
 ### Written by Tony Morris & Mark Hibberd
 
 ### With support from NICTA Limited and contributions from individuals (thanks!)
@@ -138,7 +148,7 @@ It is recommended to perform some exercises before others. The first step is to 
 * `Course.Optional`
 * `Course.Validation`
 
-They contain examples of data structures and Haskell syntax. They do not contain exercises and exist to provide 
+They contain examples of data structures and Haskell syntax. They do not contain exercises and exist to provide
 a cursory examination of Haskell syntax. The next step is to complete the exercises in `Course.List`.
 
 After this, the following progression of modules is recommended:
