@@ -115,7 +115,10 @@ findM f (x:.xs) = pure x >>= f >>= \r -> if r
 -- prop> case firstRepeat xs of Empty -> let xs' = hlist xs in nub xs' == xs'; Full x -> length (filter (== x) xs) > 1
 -- prop> case firstRepeat xs of Empty -> True; Full x -> let (l, (rx :. rs)) = span (/= x) xs in let (l2, r2) = span (/= x) rs in let l3 = hlist (l ++ (rx :. Nil) ++ l2) in nub l3 == l3
 firstRepeat :: Ord a => List a -> Optional a
-firstRepeat = error "todo"
+firstRepeat ls = let p x = get >>= (\s -> put (S.insert x s) >>=
+                                    (const $ pure (S.member x s)))
+                 in eval (findM p ls) S.empty
+
 
 -- | Remove all duplicate elements in a `List`.
 -- /Tip:/ Use `filtering` and `State` with a @Data.Set#Set@.
@@ -124,7 +127,9 @@ firstRepeat = error "todo"
 --
 -- prop> distinct xs == distinct (flatMap (\x -> x :. x :. Nil) xs)
 distinct :: Ord a => List a -> List a
-distinct = error "todo"
+distinct ls = let p x = get >>= (\s -> put (S.insert x s) >>=
+                                      (const $ pure (not $ S.member x s)))
+              in eval (filtering p ls) S.empty
 
 -- | A happy number is a positive integer, where the sum of the square of its digits eventually reaches 1 after repetition.
 -- In contrast, a sad number (not a happy number) is where the sum of the square of its digits never reaches 1
@@ -148,4 +153,10 @@ distinct = error "todo"
 -- >>> isHappy 44
 -- True
 isHappy :: Integer -> Bool
-isHappy = error "todo"
+isHappy n = let p x = get >>= (\s -> put (S.insert x s) >>=
+                               (const $ pure (S.member x s)))
+            in case eval (findM p (produce square n)) S.empty of
+                 Full x -> x == 1
+                 _      -> error "Wrong situation"
+    where square x = let ls = map digitToInt $ listh $ show x
+                     in toInteger $ foldRight (+) 0 $ zipWith (*) ls ls
