@@ -11,10 +11,7 @@ import Course.Functor
 
 class Functor f => Extend f where
   -- Pronounced, extend.
-  (<<=) ::
-    (f a -> b)
-    -> f a
-    -> f b
+  (<<=) :: (f a -> b) -> f a -> f b
 
 infixr 1 <<=
 
@@ -23,8 +20,8 @@ infixr 1 <<=
 -- >>> id <<= Id 7
 -- Id (Id 7)
 instance Extend Id where
-  (<<=) =
-    error "todo"
+  f <<= x = Id $ f x
+
 
 -- | Implement the @Extend@ instance for @List@.
 --
@@ -34,11 +31,12 @@ instance Extend Id where
 -- >>> id <<= (1 :. 2 :. 3 :. 4 :. Nil)
 -- [[1,2,3,4],[2,3,4],[3,4],[4]]
 --
--- > reverse =<< ((1 :. 2 :. 3 :. Nil) :. (4 :. 5 :. 6 :. Nil) :. Nil)
--- [3,2,1,6,5,4]
+-- >>> reverse <<= ((1 :. 2 :. 3 :. Nil) :. (4 :. 5 :. 6 :. Nil) :. Nil)
+-- [[[4,5,6],[1,2,3]],[[4,5,6]]]
 instance Extend List where
-  (<<=) =
-    error "todo"
+  f <<= ls = f <$> tails ls
+      where tails Nil = Nil
+            tails l@(_:.xs) = l:.tails xs
 
 -- | Implement the @Extend@ instance for @Optional@.
 --
@@ -48,8 +46,8 @@ instance Extend List where
 -- >>> id <<= Empty
 -- Empty
 instance Extend Optional where
-  (<<=) =
-    error "todo"
+  _ <<= Empty = Empty
+  f <<= x = Full $ f x
 
 -- | Duplicate the functor using extension.
 --
@@ -64,9 +62,5 @@ instance Extend Optional where
 --
 -- >>> cojoin Empty
 -- Empty
-cojoin ::
-  Extend f =>
-  f a
-  -> f (f a)
-cojoin =
-  error "todo"
+cojoin :: Extend f => f a -> f (f a)
+cojoin x = id <<= x
