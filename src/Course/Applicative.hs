@@ -19,8 +19,7 @@ import Course.Optional
 import qualified Prelude as P
 
 class Apply f => Applicative f where
-  pure ::
-    a -> f a
+  pure :: a -> f a
 
 -- | Witness that all things with (<*>) and pure also have (<$>).
 --
@@ -32,41 +31,33 @@ class Apply f => Applicative f where
 --
 -- >>> (+1) <$> (1 :. 2 :. 3 :. Nil)
 -- [2,3,4]
-(<$>) ::
-  Applicative f =>
-  (a -> b)
-  -> f a
-  -> f b
-(<$>) =
-  error "todo"
+(<$>) :: Applicative f => (a -> b) -> f a -> f b
+f <$> m = pure f <*> m
 
 -- | Insert into Id.
 --
 -- prop> pure x == Id x
 instance Applicative Id where
-  pure =
-    error "todo"
+  pure = Id
+
 
 -- | Insert into a List.
 --
 -- prop> pure x == x :. Nil
 instance Applicative List where
-  pure =
-    error "todo"
+  pure = (:.Nil)
 
 -- | Insert into an Optional.
 --
 -- prop> pure x == Full x
 instance Applicative Optional where
-  pure =
-    error "todo"
+  pure = Full
 
 -- | Insert into a constant function.
 --
 -- prop> pure x y == x
 instance Applicative ((->) t) where
-  pure =
-    error "todo"
+  pure = const
 
 -- | Sequences a list of structures to a structure of list.
 --
@@ -84,12 +75,9 @@ instance Applicative ((->) t) where
 --
 -- >>> sequence ((*10) :. (+2) :. Nil) 6
 -- [60,8]
-sequence ::
-  Applicative f =>
-  List (f a)
-  -> f (List a)
-sequence =
-  error "todo"
+sequence :: Applicative f => List (f a) -> f (List a)
+sequence = foldRight k (pure Nil)
+    where k a b = lift2 (:.) a b
 
 -- | Replicate an effect a given number of times.
 --
@@ -107,13 +95,8 @@ sequence =
 --
 -- >>> replicateA 3 ['a', 'b', 'c']
 -- ["aaa","aab","aac","aba","abb","abc","aca","acb","acc","baa","bab","bac","bba","bbb","bbc","bca","bcb","bcc","caa","cab","cac","cba","cbb","cbc","cca","ccb","ccc"]
-replicateA ::
-  Applicative f =>
-  Int
-  -> f a
-  -> f (List a)
-replicateA =
-  error "todo"
+replicateA :: Applicative f => Int -> f a -> f (List a)
+replicateA n = sequence . replicate n
 
 -- | Filter a list with a predicate that produces an effect.
 --
@@ -131,13 +114,12 @@ replicateA =
 --
 -- >>> filtering (>) (4 :. 5 :. 6 :. 7 :. 8 :. 9 :. 10 :. 11 :. 12 :. Nil) 8
 -- [9,10,11,12]
-filtering ::
-  Applicative f =>
-  (a -> f Bool)
-  -> List a
-  -> f (List a)
-filtering =
-  error "todo"
+filtering :: Applicative f => (a -> f Bool) -> List a -> f (List a)
+filtering f xs = foldRight k (pure Nil) xs
+    where k x lst = (++) <$> predList x <$> (f x) <*> lst
+          predList x p = if p then (x:.Nil) else Nil
+
+
 
 -----------------------
 -- SUPPORT LIBRARIES --

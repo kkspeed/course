@@ -19,10 +19,7 @@ import qualified Prelude as P
 
 class Apply f => Bind f where
   -- Pronounced, bind.
-  (=<<) ::
-    (a -> f b)
-    -> f a
-    -> f b
+  (=<<) :: (a -> f b) -> f a -> f b
 
 infixr 1 =<<
 
@@ -57,13 +54,8 @@ infixr 1 =<<
 --
 -- >>> ((*) <*> (+2)) 3
 -- 15
-(<*>) ::
-  Bind f =>
-  f (a -> b)
-  -> f a
-  -> f b
-(<*>) =
-  error "todo"
+(<*>) :: Bind f => f (a -> b) -> f a -> f b
+f <*> a = f >>= \x -> x <$> a
 
 infixl 4 <*>
 
@@ -72,32 +64,29 @@ infixl 4 <*>
 -- >>> (\x -> Id(x+1)) =<< Id 2
 -- Id 3
 instance Bind Id where
-  (=<<) =
-    error "todo"
+  f =<< (Id x) = (f x)
 
 -- | Binds a function on a List.
 --
 -- >>> (\n -> n :. n :. Nil) =<< (1 :. 2 :. 3 :. Nil)
 -- [1,1,2,2,3,3]
 instance Bind List where
-  (=<<) =
-    error "todo"
+  f =<< l = foldRight (++) Nil (f <$> l)
 
 -- | Binds a function on an Optional.
 --
 -- >>> (\n -> Full (n + n)) =<< Full 7
 -- Full 14
 instance Bind Optional where
-  (=<<) =
-    error "todo"
+  _ =<< Empty = Empty
+  f =<< Full x = f x
 
 -- | Binds a function on the reader ((->) t).
 --
 -- >>> ((*) =<< (+10)) 7
 -- 119
 instance Bind ((->) t) where
-  (=<<) =
-    error "todo"
+  g =<< f = \x -> g (f x) x
 
 -- | Flattens a combined structure to a single structure.
 --
@@ -112,12 +101,8 @@ instance Bind ((->) t) where
 --
 -- >>> join (+) 7
 -- 14
-join ::
-  Bind f =>
-  f (f a)
-  -> f a
-join =
-  error "todo"
+join :: Bind f => f (f a) -> f a
+join x = x >>= id
 
 -- | Implement a flipped version of @(=<<)@, however, use only
 -- @join@ and @(<$>)@.
@@ -125,13 +110,8 @@ join =
 --
 -- >>> ((+10) >>= (*)) 7
 -- 119
-(>>=) ::
-  Bind f =>
-  f a
-  -> (a -> f b)
-  -> f b
-(>>=) =
-  error "todo"
+(>>=) :: Bind f => f a -> (a -> f b) -> f b
+(>>=) = flip (=<<)
 
 infixl 1 >>=
 
@@ -140,14 +120,9 @@ infixl 1 >>=
 --
 -- >>> ((\n -> n :. n :. Nil) <=< (\n -> n+1 :. n+2 :. Nil)) 1
 -- [2,2,3,3]
-(<=<) ::
-  Bind f =>
-  (b -> f c)
-  -> (a -> f b)
-  -> a
-  -> f c
-(<=<) =
-  error "todo"
+(<=<) :: Bind f => (b -> f c) -> (a -> f b) -> a -> f c
+f <=< g = \x -> g x >>= f
+
 
 infixr 1 <=<
 
@@ -156,13 +131,10 @@ infixr 1 <=<
 -----------------------
 
 instance Bind IO where
-  (=<<) =
-    (P.=<<)
+  (=<<) = (P.=<<)
 
 instance Bind [] where
-  (=<<) =
-    (P.=<<)
+  (=<<) = (P.=<<)
 
 instance Bind P.Maybe where
-  (=<<) =
-    (P.=<<)
+  (=<<) = (P.=<<)
