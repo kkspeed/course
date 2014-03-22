@@ -1,0 +1,18 @@
+digraph G {
+    {
+    list [label="List"];
+    functor [label="Functor"];
+    apply [label="Apply"];
+    applicative [label="Applicative"];
+    bind [label="Bind"];
+    }
+
+    functor -> list;
+    apply -> list;
+    apply -> functor;
+    applicative -> apply;
+    applicative -> list;
+    bind -> list;
+    bind -> apply;
+    bind -> functor;
+}
