@@ -41,8 +41,8 @@ instance Functor (State s) where
 -- >>> runState (pure (+1) <*> pure 0) 0
 -- (1,0)
 instance Apply (State s) where
-  sf <*> s = State $ \x -> let (f, _) = runState sf x
-                               (v, ss) = runState s x
+  sf <*> s = State $ \x -> let (f, r) = runState sf x
+                               (v, ss) = runState s r
                            in (f v, ss)
 
 

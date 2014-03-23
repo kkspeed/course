@@ -39,10 +39,11 @@ instance Functor f => Functor (StateT s f) where
 -- >>> import qualified Prelude as P
 -- >>> runStateT (StateT (\s -> Full ((+2), s P.++ [1])) <*> (StateT (\s -> Full (2, s P.++ [2])))) [0]
 -- Full (4,[0,1,2])
-instance Bind f => Apply (StateT s f) where
-  g <*> s = StateT $ \x -> let m = runStateT s x
-                               n = runStateT g x
-                          in undefined
+instance (Bind f, Applicative f) => Apply (StateT s f) where
+  g <*> s = StateT $ \x -> let n = runStateT g x
+                            in n >>= \(f, s1) ->
+                                (\(u, r) -> (f u, r)) <$> (runStateT s s1)
+
 
 -- | Implement the `Applicative` instance for @StateT s f@ given a @Applicative f@.
 --
@@ -121,7 +122,9 @@ putT m = StateT $ \_ -> pure ((), m)
 --
 -- /Tip:/ Use `filtering` and `State'` with a @Data.Set#Set@.
 distinct' :: (Ord a, Num a) => List a -> List a
-distinct' = error "todo"
+distinct' ls = let p x = getT >>= (\s -> putT (S.insert x s) >>=
+                                  (const $ pure (not $ S.member x s)))
+               in eval' (filtering p ls) S.empty
 
 -- | Remove all duplicate elements in a `List`.
 -- However, if you see a value greater than `100` in the list,
@@ -135,7 +138,12 @@ distinct' = error "todo"
 -- >>> distinctF $ listh [1,2,3,2,1,101]
 -- Empty
 distinctF :: (Ord a, Num a) => List a -> Optional (List a)
-distinctF = error "todo"
+distinctF ls = let p x = getT >>= (\s -> putT (S.insert x s) >>=
+                                   \_ -> StateT $ \u ->
+                                        if x > 100
+                                        then Empty
+                                        else Full (not $ S.member x s, u))
+               in evalT (filtering p ls) S.empty
 
 -- | An `OptionalT` is a functor of an `Optional` value.
 data OptionalT f a =
