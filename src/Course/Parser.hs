@@ -40,55 +40,42 @@ instance Show ParseError where
   show Failed =
     "Parse failed"
 
-data ParseResult a =
-  ErrorResult ParseError
-  | Result Input a
-  deriving Eq
+data ParseResult a = ErrorResult ParseError
+                   | Result Input a
+                     deriving Eq
 
 instance Show a => Show (ParseResult a) where
-  show (ErrorResult e) =
-    show e
-  show (Result i a) =
-    stringconcat ["Result >", hlist i, "< ", show a]
+  show (ErrorResult e) = show e
+  show (Result i a) = stringconcat ["Result >", hlist i, "< ", show a]
 
 -- Function to determine is a parse result is an error.
-isErrorResult ::
-  ParseResult a
-  -> Bool
-isErrorResult (ErrorResult _) =
-  True
-isErrorResult (Result _ _) =
-  False
+isErrorResult :: ParseResult a -> Bool
+isErrorResult (ErrorResult _) = True
+isErrorResult (Result _ _) = False
 
 data Parser a = P {
   parse :: Input -> ParseResult a
 }
 
 -- | Produces a parser that always fails with @UnexpectedChar@ using the given character.
-unexpectedCharParser ::
-  Char
-  -> Parser a
-unexpectedCharParser c =
-  P (\_ -> ErrorResult (UnexpectedChar c))
+unexpectedCharParser :: Char -> Parser a
+unexpectedCharParser c = P (\_ -> ErrorResult (UnexpectedChar c))
 
 -- | Return a parser that always succeeds with the given value and consumes no input.
 --
 -- >>> parse (valueParser 3) "abc"
 -- Result >abc< 3
-valueParser ::
-  a
-  -> Parser a
-valueParser =
-  error "todo"
+valueParser :: a -> Parser a
+valueParser x = P (\input -> (Result input x))
+
 
 -- | Return a parser that always fails with the given error.
 --
 -- >>> isErrorResult (parse failed "abc")
 -- True
-failed ::
-  Parser a
-failed =
-  error "todo"
+failed :: Parser a
+failed = P (\_ -> ErrorResult Failed)
+
 
 -- | Return a parser that succeeds with a character off the input or fails with an error if the input is empty.
 --
@@ -97,10 +84,10 @@ failed =
 --
 -- >>> isErrorResult (parse character "")
 -- True
-character ::
-  Parser Char
-character =
-  error "todo"
+character :: Parser Char
+character = P (\input -> case input of
+                          (x:.xs) -> Result xs x
+                          _       -> ErrorResult UnexpectedEof)
 
 -- | Return a parser that maps any succeeding result with the given function.
 --
@@ -109,12 +96,8 @@ character =
 --
 -- parse (mapParser (+10) (valueParser 7)) ""
 -- Result >< 17
-mapParser ::
-  (a -> b)
-  -> Parser a
-  -> Parser b
-mapParser =
-  error "todo"
+mapParser :: (a -> b) -> Parser a -> Parser b
+mapParser = error "todo"
 
 -- | This is @mapParser@ with the arguments flipped.
 -- It might be more helpful to use this function if you prefer this argument order.
