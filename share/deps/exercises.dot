@@ -8,6 +8,7 @@ digraph G {
         comonad [label="Comonad"];
         extend [label="Extend"];
         state [label="State"];
+        stateT [label="StateT"];
     }
 
     functor -> list;
@@ -26,4 +27,9 @@ digraph G {
     state -> apply;
     state -> applicative;
     state -> bind;
+    stateT -> list;
+    stateT -> functor;
+    stateT -> apply;
+    stateT -> applicative;
+    stateT -> bind;
 }
