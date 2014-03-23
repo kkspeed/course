@@ -241,9 +241,15 @@ log1 l a = Logger (l:.Nil) a
 -- >>> distinctG $ listh [1,2,3,2,6,106]
 -- Logger ["even number: 2","even number: 2","even number: 6","aborting > 100: 106"] Empty
 distinctG :: (Integral a, Show a) => List a -> Logger Chars (Optional (List a))
-distinctG ls = let p x = getT >>= (\s -> putT (S.insert x s) >>=
-                                   \_ -> StateT $ \u ->
-                                        if x > 100
-                                        then Empty
-                                        else Full (not $ S.member x s, u))
-               in evalT (filtering p ls) S.empty
+distinctG ls =  runOptionalT $ evalT (filtering p ls) S.empty
+    where p :: (Integral a, Show a) => a -> StateT (S.Set a) (OptionalT (Logger Chars)) Bool
+          p x = getT >>=
+                (\s -> putT (S.insert x s) >>=
+                      \_ -> StateT $ \u ->
+                           OptionalT $ logNumber x $ Full (not (S.member x s), u))
+          logNumber x val = if x > 100
+                            then log1 (makeMsg "aborting > 100: " x) Empty
+                            else if (even x)
+                                 then log1 (makeMsg "even number: " x) val
+                                 else pure val
+          makeMsg prefix x = (listh prefix) ++ (listh $ show x)
