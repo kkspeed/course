@@ -2,7 +2,7 @@
 
 ## Exercise dependencies
 
-![exercise dependency](https://raw.github.com/kkspeed/course/master/share/deps/exercises.png)
+![exercise dependency](https://raw.github.com/kkspeed/course/master/answers/deps/exercises.png)
 
 ### Working in Progress
 
