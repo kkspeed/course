@@ -240,7 +240,6 @@ sepby1 p psep = p >>= \x1 ->
 sepby :: Parser a -> Parser s -> Parser (List a)
 sepby p psep = sepby1 p psep ||| valueParser Nil
 
-
 -- | Write a parser that asserts that there is no remaining input.
 --
 -- >>> parse eof ""
@@ -272,7 +271,7 @@ eof = P $ \input -> case input of
 -- >>> isErrorResult (parse (satisfyAll (isUpper :. (/= 'X') :. Nil)) "abc")
 -- True
 satisfyAll :: List (Char -> Bool) -> Parser Char
-satisfyAll = error "todo"
+satisfyAll fs = satisfy (and . sequence fs)
 
 -- | Write a parser that produces a characer that satisfies any of the given predicates.
 --
@@ -290,7 +289,7 @@ satisfyAll = error "todo"
 -- >>> isErrorResult (parse (satisfyAny (isLower :. (/= 'X') :. Nil)) "")
 -- True
 satisfyAny :: List (Char -> Bool) -> Parser Char
-satisfyAny = error "todo"
+satisfyAny fs = satisfy (or . sequence fs)
 
 -- | Write a parser that parses between the two given characters, separated by a comma character ','.
 --
@@ -314,4 +313,4 @@ satisfyAny = error "todo"
 -- >>> isErrorResult (parse (betweenSepbyComma '[' ']' lower) "a]")
 -- True
 betweenSepbyComma :: Char -> Char -> Parser a -> Parser (List a)
-betweenSepbyComma = error "todo"
+betweenSepbyComma c1 c2 p = between (is c1) (is c2) $ sepby p (is ',')
