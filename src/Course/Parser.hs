@@ -279,7 +279,10 @@ digit = satisfy (`elem` "0123456789")
 -- /Tip:/ Use the @bindParser@, @valueParser@, @list@, @read@ and @digit@
 -- functions.
 natural :: Parser Int
-natural = error "todo"
+natural = list digit >>= \ds -> case read ds of
+                                 Full a -> return a
+                                 Empty -> failed
+
 
 --
 -- | Return a parser that produces a space character but fails if
@@ -345,7 +348,8 @@ alpha = satisfy isAlpha
 -- >>> isErrorResult (parse (sequenceParser (character :. is 'x' :. upper :. Nil)) "abCdef")
 -- True
 sequenceParser :: List (Parser a) -> Parser (List a)
-sequenceParser = error "todo"
+sequenceParser Nil = valueParser Nil
+sequenceParser (p:.ps) = p >>= \x -> sequenceParser ps >>= \xs -> return (x:.xs)
 
 -- | Return a parser that produces the given number of values off the given parser.
 -- This parser fails if the given parser fails in the attempt to produce the given number of values.
@@ -358,7 +362,7 @@ sequenceParser = error "todo"
 -- >>> isErrorResult (parse (thisMany 4 upper) "ABcDef")
 -- True
 thisMany :: Int -> Parser a -> Parser (List a)
-thisMany = error "todo"
+thisMany n p = sequenceParser (replicate n p)
 
 -- | Write a parser for Person.age.
 --
@@ -406,7 +410,8 @@ firstNameParser = upper >>= \x ->
 -- >>> isErrorResult (parse surnameParser "abc")
 -- True
 surnameParser :: Parser Chars
-surnameParser = error "todo"
+surnameParser = upper >>= \x -> (thisMany 5 lower) >>= \ls ->
+                (list lower) >>= \lls -> return (x:.(ls++lls))
 
 -- | Write a parser for Person.smoker.
 --
@@ -443,7 +448,7 @@ smokerParser = is 'y' ||| is 'n'
 -- >>> parse phoneBodyParser "a123-456"
 -- Result >a123-456< ""
 phoneBodyParser :: Parser Chars
-phoneBodyParser = error "todo"
+phoneBodyParser = list (digit ||| is '-' ||| is '.')
 
 -- | Write a parser for Person.phone.
 --
@@ -463,7 +468,8 @@ phoneBodyParser = error "todo"
 -- >>> isErrorResult (parse phoneParser "a123-456")
 -- True
 phoneParser :: Parser Chars
-phoneParser = error "todo"
+phoneParser = digit >>= \d -> phoneBodyParser >>= \body ->
+              is '#' >>= \_ -> return $ d:.body
 
 -- | Write a parser for Person.
 --
@@ -510,7 +516,15 @@ phoneParser = error "todo"
 -- >>> parse personParser "123 Fred Clarkson y 123-456.789# rest"
 -- Result > rest< Person {age = 123, firstName = "Fred", surname = "Clarkson", smoker = 'y', phone = "123-456.789"}
 personParser :: Parser Person
-personParser = error "todo"
+personParser = ageParser >>= \ag ->
+               spaces1 >>>
+               firstNameParser >>= \firstname ->
+               spaces1 >>>
+               surnameParser >>= \sn ->
+               spaces1 >>>
+               smokerParser >>= \smokerp ->
+               spaces1 >>>
+               phoneParser >>= \phoneNum -> return $ Person ag firstname sn smokerp phoneNum
 
 -- Make sure all the tests pass!
 
