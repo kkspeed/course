@@ -186,17 +186,29 @@ data Digit =
   | Nine
   deriving (Eq, Enum, Bounded)
 
-showDigit :: Digit -> Chars
-showDigit Zero = "zero"
-showDigit One = "one"
-showDigit Two = "two"
-showDigit Three = "three"
-showDigit Four = "four"
-showDigit Five = "five"
-showDigit Six = "six"
-showDigit Seven = "seven"
-showDigit Eight = "eight"
-showDigit Nine = "nine"
+showDigit ::
+  Digit
+  -> Chars
+showDigit Zero =
+  "zero"
+showDigit One =
+  "one"
+showDigit Two =
+  "two"
+showDigit Three =
+  "three"
+showDigit Four =
+  "four"
+showDigit Five =
+  "five"
+showDigit Six =
+  "six"
+showDigit Seven =
+  "seven"
+showDigit Eight =
+  "eight"
+showDigit Nine =
+  "nine"
 
 -- A data type representing one, two or three digits, which may be useful for grouping.
 data Digit3 =
@@ -206,18 +218,31 @@ data Digit3 =
   deriving Eq
 
 -- Possibly convert a character to a digit.
-fromChar :: Char -> Optional Digit
-fromChar '0' = Full Zero
-fromChar '1' = Full One
-fromChar '2' = Full Two
-fromChar '3' = Full Three
-fromChar '4' = Full Four
-fromChar '5' = Full Five
-fromChar '6' = Full Six
-fromChar '7' = Full Seven
-fromChar '8' = Full Eight
-fromChar '9' = Full Nine
-fromChar _ = Empty
+fromChar ::
+  Char
+  -> Optional Digit
+fromChar '0' =
+  Full Zero
+fromChar '1' =
+  Full One
+fromChar '2' =
+  Full Two
+fromChar '3' =
+  Full Three
+fromChar '4' =
+  Full Four
+fromChar '5' =
+  Full Five
+fromChar '6' =
+  Full Six
+fromChar '7' =
+  Full Seven
+fromChar '8' =
+  Full Eight
+fromChar '9' =
+  Full Nine
+fromChar _ =
+  Empty
 
 -- | Take a numeric value and produce its English output.
 --
@@ -292,5 +317,8 @@ fromChar _ = Empty
 --
 -- >>> dollars "456789123456789012345678901234567890123456789012345678901234567890.12"
 -- "four hundred and fifty-six vigintillion seven hundred and eighty-nine novemdecillion one hundred and twenty-three octodecillion four hundred and fifty-six septendecillion seven hundred and eighty-nine sexdecillion twelve quindecillion three hundred and forty-five quattuordecillion six hundred and seventy-eight tredecillion nine hundred and one duodecillion two hundred and thirty-four undecillion five hundred and sixty-seven decillion eight hundred and ninety nonillion one hundred and twenty-three octillion four hundred and fifty-six septillion seven hundred and eighty-nine sextillion twelve quintillion three hundred and forty-five quadrillion six hundred and seventy-eight trillion nine hundred and one billion two hundred and thirty-four million five hundred and sixty-seven thousand eight hundred and ninety dollars and twelve cents"
-dollars :: Chars -> Chars
-dollars = error "todo"
+dollars ::
+  Chars
+  -> Chars
+dollars =
+  error "todo"

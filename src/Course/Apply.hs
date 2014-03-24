@@ -12,7 +12,10 @@ import qualified Prelude as P
 
 class Functor f => Apply f where
   -- Pronounced apply.
-  (<*>) :: f (a -> b) -> f a -> f b
+  (<*>) ::
+    f (a -> b)
+    -> f a
+    -> f b
 
 infixl 4 <*>
 
@@ -21,15 +24,16 @@ infixl 4 <*>
 -- >>> Id (+10) <*> Id 8
 -- Id 18
 instance Apply Id where
-  Id f <*> Id x = Id $ f x
+  (<*>) =
+    error "todo"
 
 -- | Implement @Apply@ instance for @List@.
 --
 -- >>> (+1) :. (*2) :. Nil <*> 1 :. 2 :. 3 :. Nil
 -- [2,3,4,2,4,6]
 instance Apply List where
-  fs <*> ls = foldRight (++) Nil $ (\ f -> f <$> ls) <$> fs
-
+  (<*>) =
+    error "todo"
 
 -- | Implement @Apply@ instance for @Optional@.
 --
@@ -42,9 +46,8 @@ instance Apply List where
 -- >>> Full (+8) <*> Empty
 -- Empty
 instance Apply Optional where
-  Empty <*> _ = Empty
-  _     <*> Empty = Empty
-  Full f <*> Full x = Full $ f x
+  (<*>) =
+    error "todo"
 
 -- | Implement @Apply@ instance for reader.
 --
@@ -63,8 +66,8 @@ instance Apply Optional where
 -- >>> ((*) <*> (+2)) 3
 -- 15
 instance Apply ((->) t) where
-  g <*> f = \x -> g x (f x)
-
+  (<*>) =
+    error "todo"
 
 -- | Apply a binary function in the environment.
 --
@@ -85,9 +88,14 @@ instance Apply ((->) t) where
 --
 -- >>> lift2 (+) length sum (listh [4,5,6])
 -- 18
-lift2 :: Apply f => (a -> b -> c) -> f a -> f b -> f c
-lift2 f a b = f <$> a <*> b
-
+lift2 ::
+  Apply f =>
+  (a -> b -> c)
+  -> f a
+  -> f b
+  -> f c
+lift2 =
+  error "todo"
 
 -- | Apply a ternary function in the Monad environment.
 --
@@ -111,9 +119,15 @@ lift2 f a b = f <$> a <*> b
 --
 -- >>> lift3 (\a b c -> a + b + c) length sum product (listh [4,5,6])
 -- 138
-lift3 :: Apply f => (a -> b -> c -> d) -> f a -> f b -> f c -> f d
-lift3 f a b c = f <$> a <*> b <*> c
-
+lift3 ::
+  Apply f =>
+  (a -> b -> c -> d)
+  -> f a
+  -> f b
+  -> f c
+  -> f d
+lift3 =
+  error "todo"
 
 -- | Apply a quaternary function in the environment.
 --
@@ -137,9 +151,16 @@ lift3 f a b c = f <$> a <*> b <*> c
 --
 -- >>> lift4 (\a b c d -> a + b + c + d) length sum product (sum . filter even) (listh [4,5,6])
 -- 148
-lift4 :: Apply f => (a -> b -> c -> d -> e) -> f a -> f b -> f c -> f d -> f e
-lift4 f a b c d = f <$> a <*> b <*> c <*> d
-
+lift4 ::
+  Apply f =>
+  (a -> b -> c -> d -> e)
+  -> f a
+  -> f b
+  -> f c
+  -> f d
+  -> f e
+lift4 =
+  error "todo"
 
 -- | Sequence, discarding the value of the first argument.
 -- Pronounced, right apply.
@@ -159,8 +180,13 @@ lift4 f a b c d = f <$> a <*> b <*> c <*> d
 -- prop> [a,b,c] *> [x,y,z] == [x,y,z,x,y,z,x,y,z]
 --
 -- prop> Full x *> Full y == Full y
-(*>) :: Apply f => f a -> f b -> f b
-(*>) = lift2 (const id)
+(*>) ::
+  Apply f =>
+  f a
+  -> f b
+  -> f b
+(*>) =
+  error "todo"
 
 -- | Sequence, discarding the value of the second argument.
 -- Pronounced, left apply.
@@ -180,8 +206,13 @@ lift4 f a b c d = f <$> a <*> b <*> c <*> d
 -- prop> [x,y,z] <* [a,b,c] == [x,x,x,y,y,y,z,z,z]
 --
 -- prop> Full x <* Full y == Full x
-(<*) :: Apply f => f b -> f a -> f b
-(<*) = lift2 const
+(<*) ::
+  Apply f =>
+  f b
+  -> f a
+  -> f b
+(<*) =
+  error "todo"
 
 -----------------------
 -- SUPPORT LIBRARIES --
@@ -199,5 +230,10 @@ instance Apply P.Maybe where
   f <*> a =
     f P.>>= \f' -> P.fmap f' a
 
-(>>) :: Apply f => f a -> f b -> f b
-(>>) = (*>)
+(>>) ::
+  Apply f =>
+  f a
+  -> f b
+  -> f b
+(>>) =
+  (*>)
