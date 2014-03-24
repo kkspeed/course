@@ -572,8 +572,8 @@ instance Comonad ListZipper where
 -- >>> traverse id (zipper [Full 1, Full 2, Full 3] (Full 4) [Empty, Full 6, Full 7])
 -- Empty
 instance Traversable ListZipper where
-  traverse f z = func (f <$> z)
-      where func (ListZipper l m r) = lift3 ListZipper l m r
+  traverse f (ListZipper l m r) = lift3 ListZipper (sequence (f <$> l))
+                                (f m) (sequence (f <$> r))
 
 -- | Implement the `Traversable` instance for `MaybeListZipper`.
 --
@@ -585,7 +585,8 @@ instance Traversable ListZipper where
 -- >>> traverse id (IsZ (zipper [Full 1, Full 2, Full 3] (Full 4) [Full 5, Full 6, Full 7]))
 -- Full [1,2,3] >4< [5,6,7]
 instance Traversable MaybeListZipper where
-  traverse = error "todo"
+  traverse _ IsNotZ = pure IsNotZ
+  traverse f (IsZ z) = IsZ <$> (traverse f z)
 
 -----------------------
 -- SUPPORT LIBRARIES --
