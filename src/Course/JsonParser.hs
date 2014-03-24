@@ -46,7 +46,9 @@ import Course.Optional
 -- >>> isErrorResult (parse jsonString "\"\\abc\"def")
 -- True
 jsonString :: Parser Chars
-jsonString = betweenCharTok '\"' '\"' undefined
+jsonString = betweenCharTok '"' '"' content
+    where content = list chars
+          chars = ((is '\\') >>> hex) ||| (noneof "\"")
 
 -- | Parse a JSON rational.
 --
