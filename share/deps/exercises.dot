@@ -9,6 +9,7 @@ digraph G {
         extend [label="Extend"];
         state [label="State"];
         stateT [label="StateT"];
+        parser [label="Parser"];
     }
 
     functor -> list;
@@ -32,4 +33,9 @@ digraph G {
     stateT -> apply;
     stateT -> applicative;
     stateT -> bind;
+    parser -> list;
+    parser -> functor;
+    parser -> apply;
+    parser -> applicative;
+    parser -> bind;
 }
