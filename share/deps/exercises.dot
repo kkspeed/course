@@ -12,6 +12,7 @@ digraph G {
         parser [label="Parser"];
         moreparser [label="MoreParser"];
         listzipper [label="ListZipper"];
+        jsonparser [label="JsonParser"];
     }
 
     functor -> list;
@@ -51,4 +52,11 @@ digraph G {
     listzipper -> applicative;
     listzipper -> extend;
     listzipper -> comonad;
+    jsonparser -> parser;
+    jsonparser -> moreparser;
+    jsonparser -> functor;
+    jsonparser -> apply;
+    jsonparser -> applicative;
+    jsonparser -> bind;
+    jsonparser -> list;
 }
