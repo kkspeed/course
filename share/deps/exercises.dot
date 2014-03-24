@@ -46,7 +46,7 @@ digraph G {
     moreparser -> applicative;
     moreparser -> apply;
     moreparser -> bind;
-    listzipper -> List;
+    listzipper -> list;
     listzipper -> functor;
     listzipper -> apply;
     listzipper -> applicative;
