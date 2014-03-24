@@ -10,7 +10,8 @@ digraph G {
         state [label="State"];
         stateT [label="StateT"];
         parser [label="Parser"];
-	moreparser [label="MoreParser"];
+        moreparser [label="MoreParser"];
+        listzipper [label="ListZipper"];
     }
 
     functor -> list;
@@ -44,4 +45,10 @@ digraph G {
     moreparser -> applicative;
     moreparser -> apply;
     moreparser -> bind;
+    listzipper -> List;
+    listzipper -> functor;
+    listzipper -> apply;
+    listzipper -> applicative;
+    listzipper -> extend;
+    listzipper -> comonad;
 }
