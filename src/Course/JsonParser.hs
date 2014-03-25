@@ -48,7 +48,7 @@ import Course.Optional
 jsonString :: Parser Chars
 jsonString = betweenCharTok '"' '"' content
     where content = list chars
-          chars = ((is '\\') >>> hex) ||| (noneof "\"")
+          chars = ((is '\\') >>> (hex ||| oneof "b\"rf")) ||| noneof "\\\""
 
 -- | Parse a JSON rational.
 --
@@ -75,7 +75,14 @@ jsonString = betweenCharTok '"' '"' content
 -- >>> isErrorResult (parse jsonNumber "abc")
 -- True
 jsonNumber :: Parser Rational
-jsonNumber = error "todo"
+jsonNumber = (is '-' >>= mag) ||| mag ' '
+    where mag si = digits1 >>= \int ->
+                   (is '.' >>= \d -> digits1 >>=
+                    \float -> getFloat (int++(d:.float)) si)
+                   ||| getFloat int si
+          getFloat ss si = case readFloat (si:.ss) of
+                             Full x -> return x
+                             _ -> failed
 
 -- | Parse a JSON true literal.
 --
@@ -150,7 +157,12 @@ jsonArray = betweenSepbyComma '[' ']' jsonValue
 -- >>> parse jsonObject "{ \"key1\" : true , \"key2\" : false } xyz"
 -- Result >xyz< [("key1",JsonTrue),("key2",JsonFalse)]
 jsonObject :: Parser Assoc
-jsonObject = error "todo"
+jsonObject = spaces >>> betweenSepbyComma '{' '}' inner >>= \v ->
+             spaces >>> (return v)
+    where inner = spaces >>> jsonString >>= \key ->
+                  charTok ':' >>> jsonValue >>= \val ->
+                      spaces >>> (return $ (key, val))
+
 
 -- | Parse a JSON value.
 --
@@ -178,4 +190,4 @@ jsonValue = spaces >>>
 --
 -- /Tip:/ Use @System.IO#readFile@ and `jsonValue`.
 readJsonValue :: Filename -> IO (ParseResult JsonValue)
-readJsonValue = error "todo"
+readJsonValue = ((parse jsonValue) <$>) . readFile
