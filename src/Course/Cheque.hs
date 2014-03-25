@@ -293,4 +293,55 @@ fromChar _ = Empty
 -- >>> dollars "456789123456789012345678901234567890123456789012345678901234567890.12"
 -- "four hundred and fifty-six vigintillion seven hundred and eighty-nine novemdecillion one hundred and twenty-three octodecillion four hundred and fifty-six septendecillion seven hundred and eighty-nine sexdecillion twelve quindecillion three hundred and forty-five quattuordecillion six hundred and seventy-eight tredecillion nine hundred and one duodecillion two hundred and thirty-four undecillion five hundred and sixty-seven decillion eight hundred and ninety nonillion one hundred and twenty-three octillion four hundred and fifty-six septillion seven hundred and eighty-nine sextillion twelve quintillion three hundred and forty-five quadrillion six hundred and seventy-eight trillion nine hundred and one billion two hundred and thirty-four million five hundred and sixty-seven thousand eight hundred and ninety dollars and twelve cents"
 dollars :: Chars -> Chars
-dollars = error "todo"
+dollars x = let ds = filter (`elem` valid) (apFP x)
+                (i, f) = partition3 ds
+                fl = normalF $ filter (`elem` digits) f
+                is = normalI $ i
+            in (singleOrPlural (stateNumber is) "dollar") ++ " and " ++
+               (singleOrPlural (stateNumber fl) "cent")
+    where apFP n = case find (== '.') n of
+                     Empty -> n ++ "."
+                     _ -> n
+          singleOrPlural n unit = if n == "one"
+                                  then n ++ " " ++ unit
+                                  else n ++ " " ++ unit ++ "s"
+          valid = '.':.digits
+          digits = listh "0123456789"
+          normalF n = case take (2::Int) n of
+                        (d:.Nil) -> listh [d, '0']
+                        o -> o
+          normalI n = replicate ((3 - (length n `mod` 3)) `mod` 3) '0' ++ n
+          partition3 n = case span (/= '.') n of
+                           (is, (_:.Nil)) -> (is, "00")
+                           (Nil, (_:.fs)) -> ("000", fs)
+                           (is, rs) -> (is, drop (1::Int) rs)
+
+          zero = listh ["zero"]
+          singles = listh ["one", "two", "three", "four", "five",
+                           "six", "seven", "eight", "nine"]
+          singled = "":. (('-':.) <$> singles)
+          tens = listh ["ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+                        "sixteen", "seventeen", "eighteen", "nineteen"]
+          n2090 = listh ["twenty", "thirty", "forty", "fifty", "sixty", "seventy",
+                         "eighty", "ninety"]
+          hundreds = (++ " hundred") <$> singles
+          alltens = zero ++ singles ++ tens ++ (lift2 (++) n2090 singled)
+          allhundreds = lift2 (++) hundreds ("" :. ((" and "++) <$>
+                                                    drop (1::Int) alltens))
+          numbers = alltens ++ allhundreds
+          group3 Nil = Nil
+          group3 chs = (take (3::Int) chs) :. group3 (drop (3::Int) chs)
+          readNumber n = case (read n) :: (Optional Int) of
+                           Empty -> error "Unable to indentify number " ++ n
+                           Full m -> headOr "" $ drop m numbers
+          produceNumber n =
+              reverse $ process (zipWith number (reverse $ group3 n) illion)
+              where number u v = (readNumber u, v)
+                    process xs = case filter ((/="zero") . fst) xs of
+                         Nil -> listh [("zero", "")]
+                         ms -> ms
+          concatNumber ns = (\(u, v) ->
+                                 if v == "" then u else u++ " " ++ v)
+                            <$> ns
+          joinS p = drop (1::Int) . foldRight (\a b -> (p:.a) ++ b) ""
+          stateNumber = joinS ' ' . concatNumber . produceNumber
