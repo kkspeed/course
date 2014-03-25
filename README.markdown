@@ -4,11 +4,11 @@
 
 ![exercise dependency](https://raw.github.com/kkspeed/course/answers/share/deps/exercises.png)
 
-### Working in Progress
+### Next step
+- Code refactor
+- Project 1: Tic-Tac-Toe
 
-### Finished
-
-## Original README
+## The Original README
 
 ### Written by Tony Morris & Mark Hibberd
 
